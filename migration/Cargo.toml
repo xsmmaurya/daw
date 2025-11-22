@@ -1,0 +1,37 @@
+# /Users/xsm/Documents/workspace/xtras/daw/migration/Cargo.toml
+# [package]
+# name = "migration"
+# version = "0.1.0"
+# edition = "2024"
+# publish = false
+
+# [lib]
+# name = "migration"
+# path = "src/lib.rs"
+
+# [dependencies]
+# sea-schema = { version = "0.16.2", features = ["debug-print", "postgres"] }
+# async-std = { version = "1", features = ["attributes", "tokio1"] }
+
+# sea-orm-migration = { version = "1.1.19", features = [
+#     "runtime-tokio-rustls",
+#     "sqlx-postgres",
+# ] }
+
+
+[package]
+name = "migration"
+version = "0.1.0"
+edition = "2024"
+publish = false
+
+[lib]
+name = "migration"
+path = "src/lib.rs"
+
+[dependencies]
+sea-orm-migration = { version = "1.1.19", features = [
+    "runtime-tokio-rustls",
+    "sqlx-postgres",
+] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
