@@ -28,3 +28,15 @@ pub struct RideRequestPayload {
 pub struct TenantContext {
     pub tenant_id: Uuid,
 }
+
+#[derive(Debug, Deserialize)]
+pub struct RideListQuery {
+    pub limit: Option<u64>,
+    pub offset: Option<u64>,
+}
+
+#[derive(Debug, Deserialize)]
+pub struct DriverLocationPayload {
+    pub lat: f64,
+    pub lon: f64,
+}

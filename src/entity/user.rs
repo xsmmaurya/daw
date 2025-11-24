@@ -4,7 +4,7 @@ use serde::{Serialize, Deserialize};
 use uuid::Uuid;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, DeriveEntityModel)]
-#[sea_orm(table_name = "users")]
+#[sea_orm(table_name = "user")]
 pub struct Model {
     #[sea_orm(primary_key)]
     pub id: Uuid,
@@ -19,6 +19,9 @@ pub struct Model {
 
     #[sea_orm(default_value = false)]
     pub deleted: bool,
+
+    #[sea_orm(default_value = false)]
+    pub driver: bool,
 
     #[sea_orm(default_value = false)]
     pub locked: bool,

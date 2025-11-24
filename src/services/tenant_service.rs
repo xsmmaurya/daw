@@ -1,14 +1,15 @@
-// /Users/xsm/Documents/workspace/xtras/daw/src/services/tenant_service.rs
-use actix_web::{web, HttpRequest, HttpResponse, Error, HttpMessage};
-use sea_orm::{ActiveModelTrait, EntityTrait, Set, DatabaseConnection, ColumnTrait, QueryFilter};
+// src/services/tenant_service.rs
+use actix_web::{web, HttpRequest, HttpResponse, Error};
+use sea_orm::{ActiveModelTrait, EntityTrait, Set, DatabaseConnection};
 use serde_json::json;
 use uuid::Uuid;
+
 use crate::dto::tenant::CreateTenantRequest;
 use crate::entity::prelude::Tenant as TenantEntity;
 use crate::entity::tenant::ActiveModel as TenantActiveModel;
-use crate::entity::user::{Entity as UserEntity, ActiveModel as UserActiveModel, Column as UserColumn};
+use crate::entity::user::ActiveModel as UserActiveModel;
 use crate::jresponse::tenant_jresponse::tenant_datum;
-use crate::types::request_keys::CurrentUserId;
+use crate::utils::current_user::get_current_user;
 
 /// POST /tenants
 pub async fn create_tenant_service(
@@ -16,15 +17,13 @@ pub async fn create_tenant_service(
     body: web::Json<CreateTenantRequest>,
     db: web::Data<DatabaseConnection>,
 ) -> Result<HttpResponse, Error> {
-    let CurrentUserId(user_id) = req
-        .extensions()
-        .get::<CurrentUserId>()
-        .cloned()
-        .ok_or_else(|| actix_web::error::ErrorUnauthorized("Missing user in context"))?;
+    // ✅ Reusable helper: pulls CurrentUserId from extensions, loads user, and
+    // rejects deleted/locked accounts.
+    let user = get_current_user(&req, db.get_ref()).await?;
 
-    // Create tenant
+    // Create tenant with UUID PK
     let mut am = TenantActiveModel {
-        id: Set(Uuid::new_v4()),
+        id: sea_orm::ActiveValue::NotSet,
         name: Set(body.name.clone()),
         slug: Set(body.slug.clone()),
         ..Default::default()
@@ -36,19 +35,13 @@ pub async fn create_tenant_service(
         .map_err(|e| actix_web::error::ErrorInternalServerError(e.to_string()))?;
 
     // Set this tenant as user's primary tenant
-    if let Some(mut user) = UserEntity::find()
-        .filter(UserColumn::Id.eq(user_id))
-        .one(db.get_ref())
+    let mut user_am: UserActiveModel = user.into();
+    user_am.tenant_id = Set(Some(tenant.id));
+
+    user_am
+        .update(db.get_ref())
         .await
-        .map_err(|e| actix_web::error::ErrorInternalServerError(e.to_string()))?
-    {
-        let mut user_am: UserActiveModel = user.into();
-        user_am.tenant_id = Set(Some(tenant.id));
-        user_am
-            .update(db.get_ref())
-            .await
-            .map_err(|e| actix_web::error::ErrorInternalServerError(e.to_string()))?;
-    }
+        .map_err(|e| actix_web::error::ErrorInternalServerError(e.to_string()))?;
 
     let j_tenant = tenant_datum(&tenant);
 

@@ -41,6 +41,8 @@ pub async fn authenticate(
         return Err((err, req));
     }
 
+    
+
     // Inject CurrentUserId into request extensions
     req.extensions_mut().insert(CurrentUserId(user.id));
 

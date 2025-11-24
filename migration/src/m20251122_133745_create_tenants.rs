@@ -15,7 +15,9 @@ impl MigrationTrait for Migration {
                         ColumnDef::new(Tenant::Id)
                             .uuid()          // UUID PK
                             .not_null()
-                            .primary_key(),
+                            .primary_key()
+                            .default(Expr::cust("gen_random_uuid()")),
+
                     )
                     .col(
                         ColumnDef::new(Tenant::Name)

@@ -4,10 +4,12 @@ use serde::Deserialize;
 #[derive(Debug, Deserialize)]
 pub struct OTPRequest {
     pub identifier: String, // email or phone (we’ll treat as email here)
+    pub driver: bool
 }
 
 #[derive(Debug, Deserialize)]
 pub struct VerifyOTP {
     pub identifier: String,
     pub otp: String,
+    pub driver: bool,
 }

@@ -15,7 +15,8 @@ impl MigrationTrait for Migration {
                         ColumnDef::new(User::Id)
                             .uuid()          // UUID PK
                             .not_null()
-                            .primary_key(),
+                            .primary_key()
+                            .default(Expr::cust("gen_random_uuid()")),
                     )
                     .col(
                         ColumnDef::new(User::Email)
@@ -33,6 +34,12 @@ impl MigrationTrait for Migration {
                     )
                     .col(
                         ColumnDef::new(User::Locked)
+                            .boolean()
+                            .not_null()
+                            .default(false),
+                    )
+                    .col(
+                        ColumnDef::new(User::Driver)
                             .boolean()
                             .not_null()
                             .default(false),
@@ -78,6 +85,7 @@ enum User {
     TenantId,
     Deleted,
     Locked,
+    Driver,
     CreatedAt,
     UpdatedAt,
 }

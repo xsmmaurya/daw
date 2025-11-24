@@ -16,6 +16,12 @@ pub fn configure_ride_routes(cfg: &mut web::ServiceConfig, db: web::Data<Databas
         web::scope("/rides")
             .wrap(auth)
             .app_data(db.clone())
-            .route("/request", web::post().to(ride_handler::request_ride_handler)),
+            .route("", web::get().to(ride_handler::list_rides_handler))
+            .route("/request", web::post().to(ride_handler::request_ride_handler))
+            .route("/{id}", web::get().to(ride_handler::get_ride_handler))
+            .route("/{id}/accept", web::post().to(ride_handler::accept_ride_handler))
+            .route("/{id}/reject", web::post().to(ride_handler::reject_ride_handler))
+            .route("/{id}/start", web::post().to(ride_handler::start_ride_handler))
+            .route("/{id}/complete", web::post().to(ride_handler::complete_ride_handler)),
     );
 }

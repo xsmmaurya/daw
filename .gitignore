@@ -1,3 +1,6 @@
 .env
 X-*
 target
+
+migration/.DS_Store
+src/.DS_Store

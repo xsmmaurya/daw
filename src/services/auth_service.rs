@@ -51,6 +51,9 @@ pub async fn send_otp_service(
 
     // In real world, send email / SMS here.
 
+    println!("-----------------------------");
+    println!("Generated OTP: {:?}", otp);
+    println!("-----------------------------");
     Ok(HttpResponse::Ok().json(json!({
         "message": "OTP sent",
         "identifier": identifier
@@ -64,6 +67,7 @@ pub async fn verify_otp_service(
     db: web::Data<DatabaseConnection>,
 ) -> Result<HttpResponse, Error> {
     let identifier = norm(&body.identifier);
+    let driver = &body.driver;
 
     let mut conn = get_redis_connection()
         .await
@@ -102,8 +106,9 @@ pub async fn verify_otp_service(
         u
     } else {
         let mut am = UserActiveModel {
-            id: Set(Uuid::new_v4()),
+            id: sea_orm::ActiveValue::NotSet,
             email: Set(identifier.clone()),
+            driver: Set(driver.clone()),
             ..Default::default()
         };
 
