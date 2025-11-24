@@ -2823,9 +2823,9 @@ dependencies = [
 
 [[package]]
 name = "qrush"
-version = "0.5.4"
+version = "0.5.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "516d7e7467b75e2c9d07906df0481e4ed8d6ccf5ebfea4a8b203fa40249706f1"
+checksum = "ffb6b456f45cfb2621955b258de9202a5970813a651215612ed9f04f70ba1b6f"
 dependencies = [
  "actix-web",
  "anyhow",

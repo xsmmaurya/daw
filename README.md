@@ -3,16 +3,72 @@
 ## Overview
 Ride-hailing backend with multi-tenant support, Redis GEO, Surge engine, PostgreSQL (SeaORM), and WebSocket real-time updates.
 
+
+
 ## Features
-- Multi-tenant users (rider/driver)
-- Driver online/offline + GEO updates
-- Ride lifecycle: request → dispatch → accept/reject → start → complete
-- WebSocket notifications
-- Background jobs (Qrush)
-- Event-store (`driver_event`, `ride_event`)
+
+### ✅ Authentication & Tenant Context
+- JWT-based auth  
+- Tenant scoping at DB level  
+- `get_current_user()` auto-resolves session context
+
+### ✅ Drivers
+- `/drivers/online` — go online + record event  
+- `/drivers/offline` — go offline + record event  
+- `/drivers/location` — update location  
+- Redis GEO integration for proximity search  
+- Event logging in `driver_event` table  
+
+### ✅ Riders & Rides
+- `/rides/request` — request a ride  
+- Surge pricing using demand/supply keys  
+- `/rides/{id}/accept`, `/start`, `/complete`  
+- Ride event timeline saved in `ride_event` table  
+
+### ✅ Dispatch System
+- Pushes jobs to Qrush (dispatch_ride_job)  
+- Selects nearest driver via Redis GEO  
+- WebSocket notifications to driver & rider  
+
+### ✅ Event APIs
+```
+GET /events/drivers/{id}/events
+GET /events/rides/{id}/events
+```
+Paginated, sorted by created_at.
+
+---
+
+## Database Schema (Core Tables)
+- `user`
+- `tenant`
+- `driver`
+- `ride`
+- `driver_event`
+- `ride_event`
+- `seaql_migrations`
 
 
-## Env
+## WebSocket Events
+
+### Rider events
+- `ride_assigned`
+- `ride_accepted`
+- `ride_started`
+- `ride_completed`
+- `ride_rejected_by_driver`
+
+### Driver events
+- `ride_assigned_to_driver`
+- `ride_accepted_for_driver`
+- `ride_started_for_driver`
+- `ride_completed_for_driver`
+
+
+
+## Setup
+
+### 1. Environment Variables
 ```
 APP_SERVER_HOST="0.0.0.0"
 APP_SERVER_PORT="8080"
@@ -47,9 +103,3 @@ cargo run
 ```
 http://localhost:8080
 ```
-
-## Endpoints
-```
-/api/v1/
-```
-
